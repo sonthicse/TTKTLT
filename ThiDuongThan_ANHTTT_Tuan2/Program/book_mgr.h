@@ -2,20 +2,18 @@
 #define BOOK_MGR_H
 
 #include "book.h"
-#include <fstream>
-#include <mutex>
 #include <string>
 #include <vector>
 #include <filesystem>
+#include <fstream>
 
 using namespace std;
 
 class BookMgr {
 private:
-    BookMgr();
     vector<Book> books;
-    mutex mtx;
     string filePath;
+    BookMgr();
     BookMgr(const BookMgr&) = delete;
     BookMgr& operator=(const BookMgr&) = delete;
 public:

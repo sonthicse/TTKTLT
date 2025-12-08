@@ -111,15 +111,9 @@ static string toUTF8(const wstring &ws)
 	return u8;
 }
 
-static wchar_t removeAccent(wchar_t ch)
-{
-}
-
 void normStr(string &s)
 {
 	wstring ws = toWString(s);
-	for (auto &wc : ws)
-		wc = removeAccent(wc);
 	for (auto &wc : ws)
 		wc = towlower(wc);
 	bool capNext = true;

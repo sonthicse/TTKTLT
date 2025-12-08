@@ -2,12 +2,8 @@
 
 using namespace std;
 
-CLI::CLI()
-	: cw(0), ch(0), mItems(), curIdx(0), mAreaW(0), mBtnL(0), mBtnW(0),
-	  mStartY(0), mBtnH(BTN_HEIGHT), mGap(0), tl(TL), tr(TR), bl(BL), br(BR),
-	  h(H), v(V)
+CLI::CLI() : cw(0), ch(0), mItems(), curIdx(0), mAreaW(0), mBtnL(0), mBtnW(0), mStartY(0), mBtnH(BTN_HEIGHT), mGap(0), tl(TL), tr(TR), bl(BL), br(BR), h(H), v(V)
 {
-
 	SetConsoleOutputCP(65001);
 
 	mItems.push_back("Them moi ho so sach (M1)");
@@ -376,13 +372,12 @@ void CLI::showAdd()
 	drawTitle("THEM MOI HO SO SACH (M1)");
 	drawGuide("Huong dan: Nhap gia tri va nhan Enter. Esc de huy.");
 
-	vector<string> lbls = {
-		"Ma the loai:",
-		"Ma sach (ISBN):",
-		"Ten sach:",
-		"Tac gia:",
-		"Ngay nhap kho (dd/mm/yyyy):",
-		"Gia sach:"};
+	vector<string> lbls = {"Ma the loai:",
+						   "Ma sach (ISBN):",
+						   "Ten sach:",
+						   "Tac gia:",
+						   "Ngay nhap kho (dd/mm/yyyy):",
+						   "Gia sach:"};
 	vector<string> values(lbls.size());
 
 	int bw = cw - 10;
@@ -431,10 +426,12 @@ void CLI::showAdd()
 				int d = 0, m = 0, yv = 0;
 				char sep;
 				stringstream ss(val);
-				if (!(ss >> d >> sep >> m >> sep >> yv) || sep != '/' || !validDate(d, m, yv))
+				if (!(ss >> d >> sep >> m >> sep >> yv) || sep != '/' ||
+					!validDate(d, m, yv))
 				{
 					ok = false;
-					drawGuide("Ngay khong hop le. Dinh dang dd/mm/yyyy va khong vuot qua ngay hien tai.");
+					drawGuide("Ngay khong hop le. Dinh dang dd/mm/yyyy va khong vuot qua "
+							  "ngay hien tai.");
 				}
 			}
 			else if (idx == 5)
@@ -502,7 +499,7 @@ void CLI::showAdd()
 	_getch();
 }
 
-void CLI::drawTbl(int tl, int tt, int /*page*/, int rpp)
+void CLI::drawTbl(int tl, int tt, int rpp)
 {
 	int wSTT = 4;
 	int wMaTL = 6;
@@ -590,7 +587,7 @@ void CLI::drawPgBtns(int top, int selidx)
 
 	drawBtn(left, top, bw, "←", selidx == 0);
 	drawBtn(left + bw + gap, top, bw, "→", selidx == 1);
-	drawBtn(left + 2 * (bw + gap), top, bw, "Thoat", selidx == 2);
+	drawBtn(left + 2 * (bw + gap), top, bw, "Tro ve", selidx == 2);
 }
 
 void CLI::showList()
@@ -603,7 +600,6 @@ void CLI::showList()
 	int availH = ch - 14;
 	int rpp = max(1, availH / 2);
 
-	// các cột
 	int wSTT = 4, wMaTL = 6, wMaSach = 13, wNgay = 10, wGia = 11;
 	int availW = max(90, cw - 4);
 	int extra = availW - 90;
@@ -624,7 +620,6 @@ void CLI::showList()
 	int btnsT = tt + th;
 	int tl = max(2, (cw - tw) / 2);
 
-	// nạp danh sách sách và tính trang
 	BookMgr::get().load();
 	const auto &list = BookMgr::get().getList();
 	int totalRows = (int)list.size();
@@ -640,20 +635,19 @@ void CLI::showList()
 	{
 		if (redrawT)
 		{
-			// vẽ lại khung và header
 			setColor(CLR_TXT);
 			gotoxy(2, 2);
 			for (int i = 0; i < cw - 4; ++i)
 				cout << ' ';
-			string pgInfo = "Trang " + to_string(page + 1) + "/" + to_string(totalPages);
+			string pgInfo =
+				"Trang " + to_string(page + 1) + "/" + to_string(totalPages);
 			int pgX = max(2, cw - (int)pgInfo.size() - 3);
 			setColor(CLR_ACCENT);
 			gotoxy(pgX, 2);
 			cout << pgInfo;
 			setColor(CLR_TXT);
 
-			drawTbl(tl, tt, page, rpp);
-			// in dữ liệu vào ô trống
+			drawTbl(tl, tt, rpp);
 			int startRow = page * rpp;
 			int rowY = tt + 3;
 			for (int r = 0; r < rpp; ++r)
@@ -663,35 +657,28 @@ void CLI::showList()
 					break;
 				const Book &bk = list[idx];
 				int cx = tl + 1;
-				// STT
 				gotoxy(cx, rowY);
 				cout << left << setw(wSTT) << (idx + 1);
 				cx += wSTT + 1;
-				// MaTL
 				gotoxy(cx, rowY);
 				cout << left << setw(wMaTL) << bk.getMaTL().substr(0, wMaTL);
 				cx += wMaTL + 1;
-				// ISBN
 				gotoxy(cx, rowY);
 				cout << left << setw(wMaSach) << bk.getISBN().substr(0, wMaSach);
 				cx += wMaSach + 1;
-				// Ten sach
 				gotoxy(cx, rowY);
 				cout << left << setw(wTen) << bk.getTenSach().substr(0, wTen);
 				cx += wTen + 1;
-				// Tac gia
 				gotoxy(cx, rowY);
 				cout << left << setw(wTacGia) << bk.getTacGia().substr(0, wTacGia);
 				cx += wTacGia + 1;
-				// Ngay nhap
 				gotoxy(cx, rowY);
 				Date d = bk.getNgayNhap();
 				stringstream ds;
-				ds << setfill('0') << setw(2) << d.getDay() << "/"
-				   << setw(2) << d.getMonth() << "/" << setw(4) << d.getYear();
+				ds << setfill('0') << setw(2) << d.getDay() << "/" << setw(2)
+				   << d.getMonth() << "/" << setw(4) << d.getYear();
 				cout << left << setw(wNgay) << ds.str().substr(0, wNgay);
 				cx += wNgay + 1;
-				// Gia sach (can phải)
 				gotoxy(cx, rowY);
 				cout << right << setw(wGia) << bk.getGiaSach();
 				rowY += 2;

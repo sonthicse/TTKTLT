@@ -64,14 +64,13 @@ private:
 	void showSearch();
 	void showStats();
 
-	void drawLblBox(int left, int top, int bw, const string &lbl,
-					const string &val, bool sel);
+	void drawLblBox(int left, int top, int bw, const string &lbl, const string &val, bool sel);
 
 	int showVMenu(const vector<string> &items, int left, int top, int width);
 
 	string inputLine(int left, int top, int bw, const string &lbl);
 
-	void drawTbl(int left, int top, int page, int rpp);
+	void drawTbl(int left, int top, int rpp);
 	void drawPgBtns(int top, int selidx);
 };
 

@@ -1,9 +1,6 @@
 #ifndef DATE_H
 #define DATE_H
 
-#include <cstring>
-#include <string>
-
 using namespace std;
 
 #pragma pack(push, 1)
