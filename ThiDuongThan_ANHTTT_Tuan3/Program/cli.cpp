@@ -2,7 +2,10 @@
 
 using namespace std;
 
-CLI::CLI() : cw(0), ch(0), mItems(), curIdx(0), mAreaW(0), mBtnL(0), mBtnW(0), mStartY(0), mBtnH(BTN_HEIGHT), mGap(0), tl(TL), tr(TR), bl(BL), br(BR), h(H), v(V)
+CLI::CLI()
+	: cw(0), ch(0), mItems(), curIdx(0), mAreaW(0), mBtnL(0), mBtnW(0),
+	  mStartY(0), mBtnH(BTN_HEIGHT), mGap(0), tl(TL), tr(TR), bl(BL), br(BR),
+	  h(H), v(V)
 {
 	SetConsoleOutputCP(65001);
 
@@ -32,8 +35,7 @@ void CLI::recalc()
 	mBtnH = BTN_HEIGHT;
 	mGap = 0;
 
-	int totalH = static_cast<int>(mItems.size()) * mBtnH +
-				 static_cast<int>(mItems.size() - 1) * mGap;
+	int totalH = static_cast<int>(mItems.size()) * mBtnH + static_cast<int>(mItems.size() - 1) * mGap;
 
 	mStartY = (ch - totalH) / 2;
 	if (mStartY < 3)
@@ -241,8 +243,7 @@ void CLI::hlMBtn(int oidx, int nidx)
 	}
 }
 
-void CLI::drawLblBox(int left, int top, int bw, const string &lbl,
-					 const string &val, bool sel)
+void CLI::drawLblBox(int left, int top, int bw, const string &lbl, const string &val, bool sel)
 {
 	setColor(CLR_ACCENT);
 	gotoxy(left, top);
@@ -430,8 +431,7 @@ void CLI::showAdd()
 					!validDate(d, m, yv))
 				{
 					ok = false;
-					drawGuide("Ngay khong hop le. Dinh dang dd/mm/yyyy va khong vuot qua "
-							  "ngay hien tai.");
+					drawGuide("Ngay khong hop le. Dinh dang dd/mm/yyyy va khong vuot qua ngay hien tai.");
 				}
 			}
 			else if (idx == 5)
@@ -518,8 +518,7 @@ void CLI::drawTbl(int tl, int tt, int rpp)
 	int widths[] = {wSTT, wMaTL, wMaSach, wTen, wTacGia, wNgay, wGia};
 	int ccnt = 7;
 
-	auto drawBRow = [&](int y, const string &lc, const string &mc,
-						const string &rc)
+	auto drawBRow = [&](int y, const string &lc, const string &mc, const string &rc)
 	{
 		gotoxy(tl, y);
 		setColor(CLR_BTN_BORDER_SEL);
@@ -538,8 +537,7 @@ void CLI::drawTbl(int tl, int tt, int rpp)
 	gotoxy(tl, tt + 1);
 	cout << V;
 
-	const char *hdrs[] = {"STT", "Ma TL", "Ma sach", "Ten sach",
-						  "Tac gia", "Ngay nhap", "Gia"};
+	const char *hdrs[] = {"STT", "Ma TL", "Ma sach", "Ten sach", "Tac gia", "Ngay nhap", "Gia"};
 	for (int i = 0; i < ccnt; ++i)
 	{
 		setColor(CLR_TITLE);
@@ -595,7 +593,7 @@ void CLI::showList()
 	recalc();
 	clrInner();
 	drawTitle("DANH SACH SACH (M2)");
-	drawGuide("Huong dan: ← / → Chon nut | [Enter]: Thuc hien | [Esc]: MENU");
+	drawGuide("Huong dan: [↑]/[↓] Chon hang | ← / → Chon nut | [Enter]: Xac nhan | [Esc]: MENU");
 
 	int availH = ch - 14;
 	int rpp = max(1, availH / 2);
@@ -625,8 +623,50 @@ void CLI::showList()
 	int totalRows = (int)list.size();
 	int totalPages = max(1, (totalRows + rpp - 1) / rpp);
 
+	auto drawRow = [&](int idx, int rowY, bool sel)
+	{
+		if (idx < 0 || idx >= totalRows)
+			return;
+
+		const Book &bk = list[idx];
+		WORD rowColor = sel ? CLR_BTN_TXT_SEL : CLR_TXT;
+		setColor(rowColor);
+
+		int cx = tl + 1;
+		gotoxy(cx, rowY);
+		cout << left << setw(wSTT) << (idx + 1);
+		cx += wSTT + 1;
+
+		gotoxy(cx, rowY);
+		cout << left << setw(wMaTL) << bk.getMaTL().substr(0, wMaTL);
+		cx += wMaTL + 1;
+
+		gotoxy(cx, rowY);
+		cout << left << setw(wMaSach) << bk.getISBN().substr(0, wMaSach);
+		cx += wMaSach + 1;
+
+		gotoxy(cx, rowY);
+		cout << left << setw(wTen) << bk.getTenSach().substr(0, wTen);
+		cx += wTen + 1;
+
+		gotoxy(cx, rowY);
+		cout << left << setw(wTacGia) << bk.getTacGia().substr(0, wTacGia);
+		cx += wTacGia + 1;
+
+		gotoxy(cx, rowY);
+		Date d = bk.getNgayNhap();
+		stringstream ds;
+		ds << setfill('0') << setw(2) << d.getDay() << "/" << setw(2) << d.getMonth() << "/" << setw(4) << d.getYear();
+		cout << left << setw(wNgay) << ds.str().substr(0, wNgay);
+		cx += wNgay + 1;
+
+		gotoxy(cx, rowY);
+		cout << right << setw(wGia) << bk.getGiaSach();
+	};
+
 	int page = 0;
 	int selBtn = 1;
+	int selRow = (totalRows > 0) ? 0 : -1;
 	bool inScr = true;
 	bool redrawT = true;
 	bool redrawB = true;
@@ -639,8 +679,8 @@ void CLI::showList()
 			gotoxy(2, 2);
 			for (int i = 0; i < cw - 4; ++i)
 				cout << ' ';
-			string pgInfo =
-				"Trang " + to_string(page + 1) + "/" + to_string(totalPages);
+
+			string pgInfo = "Trang " + to_string(page + 1) + "/" + to_string(totalPages);
 			int pgX = max(2, cw - (int)pgInfo.size() - 3);
 			setColor(CLR_ACCENT);
 			gotoxy(pgX, 2);
@@ -655,41 +695,21 @@ void CLI::showList()
 				int idx = startRow + r;
 				if (idx >= totalRows)
 					break;
-				const Book &bk = list[idx];
-				int cx = tl + 1;
-				gotoxy(cx, rowY);
-				cout << left << setw(wSTT) << (idx + 1);
-				cx += wSTT + 1;
-				gotoxy(cx, rowY);
-				cout << left << setw(wMaTL) << bk.getMaTL().substr(0, wMaTL);
-				cx += wMaTL + 1;
-				gotoxy(cx, rowY);
-				cout << left << setw(wMaSach) << bk.getISBN().substr(0, wMaSach);
-				cx += wMaSach + 1;
-				gotoxy(cx, rowY);
-				cout << left << setw(wTen) << bk.getTenSach().substr(0, wTen);
-				cx += wTen + 1;
-				gotoxy(cx, rowY);
-				cout << left << setw(wTacGia) << bk.getTacGia().substr(0, wTacGia);
-				cx += wTacGia + 1;
-				gotoxy(cx, rowY);
-				Date d = bk.getNgayNhap();
-				stringstream ds;
-				ds << setfill('0') << setw(2) << d.getDay() << "/" << setw(2)
-				   << d.getMonth() << "/" << setw(4) << d.getYear();
-				cout << left << setw(wNgay) << ds.str().substr(0, wNgay);
-				cx += wNgay + 1;
-				gotoxy(cx, rowY);
-				cout << right << setw(wGia) << bk.getGiaSach();
+
+				bool sel = (idx == selRow);
+				drawRow(idx, rowY, sel);
 				rowY += 2;
 			}
+			setColor(CLR_TXT);
 			redrawT = false;
 		}
+
 		if (redrawB)
 		{
 			drawPgBtns(btnsT, selBtn);
 			redrawB = false;
 		}
+
 		int c = _getch();
 		if (c == 27)
 		{
@@ -700,11 +720,23 @@ void CLI::showList()
 			if (selBtn == 0 && page > 0)
 			{
 				page--;
+				if (totalRows > 0)
+				{
+					selRow = page * rpp;
+					if (selRow >= totalRows)
+						selRow = totalRows - 1;
+				}
 				redrawT = true;
 			}
 			else if (selBtn == 1 && page < totalPages - 1)
 			{
 				page++;
+				if (totalRows > 0)
+				{
+					selRow = page * rpp;
+					if (selRow >= totalRows)
+						selRow = totalRows - 1;
+				}
 				redrawT = true;
 			}
 			else if (selBtn == 2)
@@ -725,15 +757,59 @@ void CLI::showList()
 				selBtn = (selBtn + 1) % 3;
 				redrawB = true;
 			}
-			else if (c2 == 73 && page > 0)
+			else if (c2 == 72)
 			{
-				page--;
-				redrawT = true;
+				if (selRow > 0)
+				{
+					int oldRow = selRow;
+					selRow--;
+
+					if (selRow < page * rpp)
+					{
+						if (page > 0)
+							page--;
+						redrawT = true;
+					}
+					else
+					{
+						int startRow = page * rpp;
+						int oldOffset = oldRow - startRow;
+						int newOffset = selRow - startRow;
+						int oldY = tt + 3 + oldOffset * 2;
+						int newY = tt + 3 + newOffset * 2;
+
+						drawRow(oldRow, oldY, false);
+						drawRow(selRow, newY, true);
+						setColor(CLR_TXT);
+					}
+				}
 			}
-			else if (c2 == 81 && page < totalPages - 1)
+			else if (c2 == 80)
 			{
-				page++;
-				redrawT = true;
+				if (selRow >= 0 && selRow < totalRows - 1)
+				{
+					int oldRow = selRow;
+					selRow++;
+
+					if (selRow >= (page + 1) * rpp)
+					{
+						if (page < totalPages - 1)
+							page++;
+						redrawT = true;
+					}
+					else
+					{
+						int startRow = page * rpp;
+						int oldOffset = oldRow - startRow;
+						int newOffset = selRow - startRow;
+						int oldY = tt + 3 + oldOffset * 2;
+						int newY = tt + 3 + newOffset * 2;
+
+						drawRow(oldRow, oldY, false);
+						drawRow(selRow, newY, true);
+						setColor(CLR_TXT);
+					}
+				}
 			}
 		}
 	}
@@ -743,14 +819,18 @@ void CLI::showSort()
 {
 	clrContent();
 	drawTitle("SAP XEP (M3)");
-	drawGuide(
-		"Huong dan: [↑]/[↓] chon | [Enter]: xac nhan | [Esc]: quay lai MENU");
+	drawGuide("Huong dan: [↑]/[↓] chon | [Enter]: xac nhan | [Esc]: quay lai MENU");
 
-	vector<string> algos = {"Sap xep chon (Selection)",
-							"Sap xep chen (Insertion)", "Quick sort",
-							"Merge sort", "Heap sort"};
-	vector<string> keys = {"Ma sach (ISBN)", "Ten sach", "Tac gia",
-						   "Ngay nhap kho", "Gia sach"};
+	// Định nghĩa các thuật toán sắp xếp mà người dùng có thể chọn. Chỉ các thuật toán có triển khai trong BookMgr mới được liệt kê ở đây.
+	vector<string> algos = {"Insertion sort", "Quick sort", "Merge sort", "Heap sort"};
+	// Định nghĩa các tiêu chí sắp xếp. Các tùy chọn bổ sung như danh mục và sắp xếp đa cấp (MaTL -> Ten -> Ngay) được cung cấp.
+	vector<string> keys = {"Ma sach (ISBN)",
+						   "Ten sach",
+						   "Tac gia",
+						   "Ngay nhap kho",
+						   "Gia sach",
+						   "Ma the loai",
+						   "Da tieu chi (MaTL -> Ten -> Ngay)"};
 
 	int sw1 = 30, sw2 = 30;
 	for (const auto &s : algos)
@@ -802,23 +882,70 @@ void CLI::showSort()
 	if (kidx < 0)
 		return;
 
-	clrInner();
-	drawTitle("SAP XEP (M3)");
-	drawGuide("Nhan phim bat ky de quay lai MENU chinh.");
-
-	_getch();
+	// Sau khi cả thuật toán và tiêu chí được chọn, hãy thực hiện sắp xếp.
+	BookMgr::SortAlgorithm algorithm;
+	switch (aidx)
+	{
+	case 0:
+		algorithm = BookMgr::SortAlgorithm::Insertion;
+		break;
+	case 1:
+		algorithm = BookMgr::SortAlgorithm::Quick;
+		break;
+	case 2:
+		algorithm = BookMgr::SortAlgorithm::Merge;
+		break;
+	case 3:
+		algorithm = BookMgr::SortAlgorithm::Heap;
+		break;
+	default:
+		algorithm = BookMgr::SortAlgorithm::Insertion;
+		break;
+	}
+	// Ánh xạ chỉ mục tiêu chí tới BookMgr::SortCriteria.
+	BookMgr::SortCriteria criteria;
+	switch (kidx)
+	{
+	case 0:
+		criteria = BookMgr::SortCriteria::ISBN;
+		break;
+	case 1:
+		criteria = BookMgr::SortCriteria::Title;
+		break;
+	case 2:
+		criteria = BookMgr::SortCriteria::Author;
+		break;
+	case 3:
+		criteria = BookMgr::SortCriteria::Date;
+		break;
+	case 4:
+		criteria = BookMgr::SortCriteria::Price;
+		break;
+	case 5:
+		criteria = BookMgr::SortCriteria::Category;
+		break;
+	case 6:
+		criteria = BookMgr::SortCriteria::Multi;
+		break;
+	default:
+		criteria = BookMgr::SortCriteria::ISBN;
+		break;
+	}
+	// Gọi sắp xếp thông qua BookMgr::sortList. Sẽ cập nhật cả danh sách trong bộ nhớ và tệp dữ liệu cơ bản.
+	BookMgr::get().sortList(algorithm, criteria);
+	// Hiển thị danh sách đã sắp xếp bằng chức năng liệt kê hiện có. Hàm showList tải từ tệp, do đó thứ tự mới sẽ được in ra màn hình.
+	showList();
+	return;
 }
 
 void CLI::showSearch()
 {
 	clrContent();
 	drawTitle("TIM KIEM (M4)");
-	drawGuide(
-		"Huong dan: [↑]/[↓] chon | [Enter]: xac nhan | [Esc]: quay lai MENU");
+	drawGuide("Huong dan: [↑]/[↓] chon | [Enter]: xac nhan | [Esc]: quay lai MENU");
 
 	vector<string> algos = {"Tim kiem tuan tu", "Tim kiem nhi phan"};
-	vector<string> keys = {"Ma the loai", "Ma sach (ISBN)", "Ten sach",
-						   "Tac gia"};
+	vector<string> keys = {"Ma the loai", "Ma sach (ISBN)", "Ten sach", "Tac gia"};
 
 	int sw1 = 30, sw2 = 30;
 	for (const auto &s : algos)
@@ -943,7 +1070,8 @@ void CLI::run()
 	clrInner();
 	drawTitle("CHUONG TRINH QUAN LY SACH THU VIEN");
 	drawMMenu();
-	drawGuide("Huong dan: [↑] Len | [↓] Xuong | [Enter]: Chon | [Esc]: Thoat");
+	drawGuide(
+		"Huong dan: [↑] Len | [↓] Xuong | [Enter]: Xac nhan | [Esc]: Thoat");
 
 	showCursor(false);
 
@@ -999,7 +1127,7 @@ void CLI::run()
 			drawTitle("CHUONG TRINH QUAN LY SACH THU VIEN");
 			drawMMenu();
 			drawGuide(
-				"Huong dan: [↑] Len | [↓] Xuong | [Enter]: Chon | [Esc]: Thoat");
+				"Huong dan: [↑] Len | [↓] Xuong | [Enter]: Xac nhan | [Esc]: Thoat");
 		}
 		else if (c == 27)
 		{
