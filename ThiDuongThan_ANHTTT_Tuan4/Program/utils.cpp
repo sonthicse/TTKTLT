@@ -76,10 +76,7 @@ bool validDate(int d, int m, int y)
 	return true;
 }
 
-bool validPrice(int price)
-{
-	return price >= 0;
-}
+bool validPrice(int price) { return price >= 0; }
 
 static wstring toWString(const string &u8)
 {
@@ -130,4 +127,19 @@ void normStr(string &s)
 		}
 	}
 	s = toUTF8(ws);
+}
+
+string foldLowerUtf8(const string &s)
+{
+	wstring ws = toWString(s);
+	for (auto &wc : ws)
+		wc = towlower(wc);
+	return toUTF8(ws);
+}
+
+bool containsFolded(const string &haystack, const string &needle)
+{
+	string h = foldLowerUtf8(haystack);
+	string n = foldLowerUtf8(needle);
+	return h.find(n) != string::npos;
 }

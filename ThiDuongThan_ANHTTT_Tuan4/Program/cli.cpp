@@ -35,7 +35,8 @@ void CLI::recalc()
 	mBtnH = BTN_HEIGHT;
 	mGap = 0;
 
-	int totalH = static_cast<int>(mItems.size()) * mBtnH + static_cast<int>(mItems.size() - 1) * mGap;
+	int totalH = static_cast<int>(mItems.size()) * mBtnH +
+				 static_cast<int>(mItems.size() - 1) * mGap;
 
 	mStartY = (ch - totalH) / 2;
 	if (mStartY < 3)
@@ -243,7 +244,8 @@ void CLI::hlMBtn(int oidx, int nidx)
 	}
 }
 
-void CLI::drawLblBox(int left, int top, int bw, const string &lbl, const string &val, bool sel)
+void CLI::drawLblBox(int left, int top, int bw, const string &lbl,
+					 const string &val, bool sel)
 {
 	setColor(CLR_ACCENT);
 	gotoxy(left, top);
@@ -431,7 +433,8 @@ void CLI::showAdd()
 					!validDate(d, m, yv))
 				{
 					ok = false;
-					drawGuide("Ngay khong hop le. Dinh dang dd/mm/yyyy va khong vuot qua ngay hien tai.");
+					drawGuide("Ngay khong hop le. Dinh dang dd/mm/yyyy va khong vuot qua "
+							  "ngay hien tai.");
 				}
 			}
 			else if (idx == 5)
@@ -518,7 +521,8 @@ void CLI::drawTbl(int tl, int tt, int rpp)
 	int widths[] = {wSTT, wMaTL, wMaSach, wTen, wTacGia, wNgay, wGia};
 	int ccnt = 7;
 
-	auto drawBRow = [&](int y, const string &lc, const string &mc, const string &rc)
+	auto drawBRow = [&](int y, const string &lc, const string &mc,
+						const string &rc)
 	{
 		gotoxy(tl, y);
 		setColor(CLR_BTN_BORDER_SEL);
@@ -537,7 +541,8 @@ void CLI::drawTbl(int tl, int tt, int rpp)
 	gotoxy(tl, tt + 1);
 	cout << V;
 
-	const char *hdrs[] = {"STT", "Ma TL", "Ma sach", "Ten sach", "Tac gia", "Ngay nhap", "Gia"};
+	const char *hdrs[] = {"STT", "Ma TL", "Ma sach", "Ten sach",
+						  "Tac gia", "Ngay nhap", "Gia"};
 	for (int i = 0; i < ccnt; ++i)
 	{
 		setColor(CLR_TITLE);
@@ -593,7 +598,8 @@ void CLI::showList()
 	recalc();
 	clrInner();
 	drawTitle("DANH SACH SACH (M2)");
-	drawGuide("Huong dan: [↑]/[↓] Chon hang | ← / → Chon nut | [Enter]: Xac nhan | [Esc]: MENU");
+	drawGuide("Huong dan: [↑]/[↓] Chon hang | ← / → Chon nut | [Enter]: Xac nhan "
+			  "| [Esc]: MENU");
 
 	int availH = ch - 14;
 	int rpp = max(1, availH / 2);
@@ -656,7 +662,8 @@ void CLI::showList()
 		gotoxy(cx, rowY);
 		Date d = bk.getNgayNhap();
 		stringstream ds;
-		ds << setfill('0') << setw(2) << d.getDay() << "/" << setw(2) << d.getMonth() << "/" << setw(4) << d.getYear();
+		ds << setfill('0') << setw(2) << d.getDay() << "/" << setw(2)
+		   << d.getMonth() << "/" << setw(4) << d.getYear();
 		cout << left << setw(wNgay) << ds.str().substr(0, wNgay);
 		cx += wNgay + 1;
 
@@ -680,7 +687,8 @@ void CLI::showList()
 			for (int i = 0; i < cw - 4; ++i)
 				cout << ' ';
 
-			string pgInfo = "Trang " + to_string(page + 1) + "/" + to_string(totalPages);
+			string pgInfo =
+				"Trang " + to_string(page + 1) + "/" + to_string(totalPages);
 			int pgX = max(2, cw - (int)pgInfo.size() - 3);
 			setColor(CLR_ACCENT);
 			gotoxy(pgX, 2);
@@ -819,11 +827,15 @@ void CLI::showSort()
 {
 	clrContent();
 	drawTitle("SAP XEP (M3)");
-	drawGuide("Huong dan: [↑]/[↓] chon | [Enter]: xac nhan | [Esc]: quay lai MENU");
+	drawGuide(
+		"Huong dan: [↑]/[↓] chon | [Enter]: xac nhan | [Esc]: quay lai MENU");
 
-	// Định nghĩa các thuật toán sắp xếp mà người dùng có thể chọn. Chỉ các thuật toán có triển khai trong BookMgr mới được liệt kê ở đây.
-	vector<string> algos = {"Insertion sort", "Quick sort", "Merge sort", "Heap sort"};
-	// Định nghĩa các tiêu chí sắp xếp. Các tùy chọn bổ sung như danh mục và sắp xếp đa cấp (MaTL -> Ten -> Ngay) được cung cấp.
+	// Định nghĩa các thuật toán sắp xếp mà người dùng có thể chọn. Chỉ các thuật
+	// toán có triển khai trong BookMgr mới được liệt kê ở đây.
+	vector<string> algos = {"Insertion sort", "Quick sort", "Merge sort",
+							"Heap sort"};
+	// Định nghĩa các tiêu chí sắp xếp. Các tùy chọn bổ sung như danh mục và sắp
+	// xếp đa cấp (MaTL -> Ten -> Ngay) được cung cấp.
 	vector<string> keys = {"Ma sach (ISBN)",
 						   "Ten sach",
 						   "Tac gia",
@@ -931,9 +943,11 @@ void CLI::showSort()
 		criteria = BookMgr::SortCriteria::ISBN;
 		break;
 	}
-	// Gọi sắp xếp thông qua BookMgr::sortList. Sẽ cập nhật cả danh sách trong bộ nhớ và tệp dữ liệu cơ bản.
+	// Gọi sắp xếp thông qua BookMgr::sortList. Sẽ cập nhật cả danh sách trong bộ
+	// nhớ và tệp dữ liệu cơ bản.
 	BookMgr::get().sortList(algorithm, criteria);
-	// Hiển thị danh sách đã sắp xếp bằng chức năng liệt kê hiện có. Hàm showList tải từ tệp, do đó thứ tự mới sẽ được in ra màn hình.
+	// Hiển thị danh sách đã sắp xếp bằng chức năng liệt kê hiện có. Hàm showList
+	// tải từ tệp, do đó thứ tự mới sẽ được in ra màn hình.
 	showList();
 	return;
 }
@@ -942,61 +956,99 @@ void CLI::showSearch()
 {
 	clrContent();
 	drawTitle("TIM KIEM (M4)");
-	drawGuide("Huong dan: [↑]/[↓] chon | [Enter]: xac nhan | [Esc]: quay lai MENU");
+	drawGuide(
+		"Huong dan: [↑]/[↓] chon | [Enter]: xac nhan | [Esc]: quay lai MENU");
 
+	// Bước 1: Chọn thuật toán
 	vector<string> algos = {"Tim kiem tuan tu", "Tim kiem nhi phan"};
-	vector<string> keys = {"Ma the loai", "Ma sach (ISBN)", "Ten sach", "Tac gia"};
-
-	int sw1 = 30, sw2 = 30;
+	int sw1 = 30;
 	for (const auto &s : algos)
 		sw1 = max(sw1, (int)s.size() + 4);
-	for (const auto &s : keys)
-		sw2 = max(sw2, (int)s.size() + 4);
 
 	const int GAP = 4;
 	int sx = mBtnL + mBtnW + GAP;
-	int avail = cw - 2 - sx;
+	if (sw1 > cw - sx - 4)
+		sw1 = cw - sx - 4;
 
-	if (avail > 0)
-	{
-		int maxW = (avail - GAP) / 2;
-		if (maxW < 20)
-			maxW = 20;
-		if (sw1 > maxW)
-			sw1 = maxW;
-		if (sw2 > maxW)
-			sw2 = maxW;
-	}
-
-	int tw = sw1 + GAP + sw2;
-	if (sx + tw > cw - 2)
-	{
-		sx = max(mBtnL + mBtnW + 2, cw - 2 - tw);
-	}
-
-	int l1 = sx;
-	int l2 = l1 + sw1 + GAP;
-
-	int cnt = max((int)algos.size(), (int)keys.size());
+	int cnt = (int)algos.size();
 	int height = cnt * mBtnH + (cnt - 1) * mGap;
 	int top = max(3, (ch - height) / 2);
-	if (top + height > ch - 5)
-		top = ch - 5 - height;
 
 	setColor(CLR_ACCENT);
-	gotoxy(l1, top - 2);
+	gotoxy(sx, top - 2);
 	cout << "Chon thuat toan tim kiem:";
-	int aidx = showVMenu(algos, l1, top, sw1);
+	int aidx = showVMenu(algos, sx, top, sw1);
 	if (aidx < 0)
 		return;
 
+	// Bước 2: Chọn kiểu tìm kiếm
+	clrContent();
+	drawTitle("TIM KIEM (M4)");
+	drawGuide(
+		"Huong dan: [↑]/[↓] chon | [Enter]: xac nhan | [Esc]: quay lai MENU");
+
+	vector<string> searchTypes = {"Chinh xac", "Khong chinh xac",
+								  "Khong xac dinh truong"};
+	int sw2 = 40;
+	for (const auto &s : searchTypes)
+		sw2 = max(sw2, (int)s.size() + 4);
+	if (sw2 > cw - sx - 4)
+		sw2 = cw - sx - 4;
+
+	cnt = (int)searchTypes.size();
+	height = cnt * mBtnH + (cnt - 1) * mGap;
+	top = max(3, (ch - height) / 2);
+
 	setColor(CLR_ACCENT);
-	gotoxy(l2, top - 2);
-	cout << "Chon khoa tim kiem:";
-	int kidx = showVMenu(keys, l2, top, sw2);
-	if (kidx < 0)
+	gotoxy(sx, top - 2);
+	cout << "Chon kieu tim kiem:";
+	int tidx = showVMenu(searchTypes, sx, top, sw2);
+	if (tidx < 0)
 		return;
 
+	// Kiểm tra: Binary chỉ áp dụng cho Exact
+	bool useBinary = (aidx == 1);
+	if (useBinary && tidx != 0)
+	{
+		// Chuyển sang tuần tự và thông báo
+		useBinary = false;
+		clrContent();
+		drawTitle("TIM KIEM (M4)");
+		drawGuide("Nhi phan chi ap dung tim chinh xac -> chuyen sang tuan tu. Nhan "
+				  "phim bat ky.");
+		_getch();
+	}
+
+	// Bước 3: Chọn khóa (chỉ khi không phải Global)
+	int kidx = 0;
+	if (tidx != 2) // Không phải Global
+	{
+		clrContent();
+		drawTitle("TIM KIEM (M4)");
+		drawGuide(
+			"Huong dan: [↑]/[↓] chon | [Enter]: xac nhan | [Esc]: quay lai MENU");
+
+		vector<string> keys = {"Ma the loai", "Ma sach (ISBN)", "Ten sach",
+							   "Tac gia"};
+		int sw3 = 30;
+		for (const auto &s : keys)
+			sw3 = max(sw3, (int)s.size() + 4);
+		if (sw3 > cw - sx - 4)
+			sw3 = cw - sx - 4;
+
+		cnt = (int)keys.size();
+		height = cnt * mBtnH + (cnt - 1) * mGap;
+		top = max(3, (ch - height) / 2);
+
+		setColor(CLR_ACCENT);
+		gotoxy(sx, top - 2);
+		cout << "Chon khoa tim kiem:";
+		kidx = showVMenu(keys, sx, top, sw3);
+		if (kidx < 0)
+			return;
+	}
+
+	// Bước 4: Nhập chuỗi tìm kiếm
 	clrContent();
 	drawTitle("TIM KIEM (M4)");
 	drawGuide("Nhap gia tri tim kiem | [Enter]: xac nhan | [Esc]: huy");
@@ -1012,14 +1064,308 @@ void CLI::showSearch()
 		left = cw - 2 - bw;
 
 	int topBox = max(4, ch / 2 - 2);
-
 	string kval = inputLine(left, topBox, bw, "Gia tri tim kiem:");
 
-	clrInner();
-	drawTitle("TIM KIEM (M4)");
-	drawGuide("Nhan phim bat ky de quay lai MENU chinh.");
+	if (kval.empty())
+		return; // User nhấn ESC
 
-	_getch();
+	// Bước 5: Thực hiện tìm kiếm
+	BookMgr::SortCriteria criteria;
+	switch (kidx)
+	{
+	case 0:
+		criteria = BookMgr::SortCriteria::Category;
+		break;
+	case 1:
+		criteria = BookMgr::SortCriteria::ISBN;
+		break;
+	case 2:
+		criteria = BookMgr::SortCriteria::Title;
+		break;
+	case 3:
+		criteria = BookMgr::SortCriteria::Author;
+		break;
+	default:
+		criteria = BookMgr::SortCriteria::ISBN;
+		break;
+	}
+
+	vector<int> matchIndices;
+
+	if (tidx == 0) // Exact
+	{
+		if (useBinary)
+			matchIndices = BookMgr::get().searchExactBinary(criteria, kval);
+		else
+			matchIndices = BookMgr::get().searchExactLinear(criteria, kval);
+	}
+	else if (tidx == 1) // Contains
+	{
+		matchIndices = BookMgr::get().searchContainsLinear(criteria, kval);
+	}
+	else // Global
+	{
+		matchIndices = BookMgr::get().searchGlobalLinear(kval);
+	}
+
+	// Bước 6: Hiển thị kết quả
+	if (matchIndices.empty())
+	{
+		clrInner();
+		drawTitle("TIM KIEM (M4) - KET QUA");
+		drawGuide("Khong tim thay ket qua nao. Nhan phim bat ky de quay lai MENU.");
+		_getch();
+		return;
+	}
+
+	// Hiển thị màn hình kết quả - CHỈ hiển thị các kết quả tìm thấy
+	showSearchResults(matchIndices, kval, criteria, tidx);
+}
+
+// Hàm helper hiển thị kết quả tìm kiếm (thêm vào CLI private hoặc đây)
+// Hàm hiển thị kết quả tìm kiếm - CHỈ hiển thị các sách được tìm thấy
+void CLI::showSearchResults(const vector<int> &matchIndices,
+							const string &searchTerm,
+							BookMgr::SortCriteria searchCriteria,
+							int searchTypeIdx)
+{
+	recalc();
+	clrInner();
+	drawTitle("TIM KIEM (M4) - KET QUA");
+	drawGuide("Huong dan: [↑]/[↓] Chon hang | ← / → Chon nut | [Enter]: Xac nhan "
+			  "| [Esc]: MENU");
+
+	int availH = ch - 14;
+	int rpp = max(1, availH / 2);
+
+	int wSTT = 4, wMaTL = 6, wMaSach = 13, wNgay = 10, wGia = 11;
+	int availW = max(90, cw - 4);
+	int extra = availW - 90;
+	int wTen = 20 + (int)(extra * 0.55);
+	int wTacGia = 18 + (int)(extra * 0.45);
+
+	int widths[] = {wSTT, wMaTL, wMaSach, wTen, wTacGia, wNgay, wGia};
+	int tw = 1;
+	for (int w : widths)
+		tw += w + 1;
+
+	int th = rpp * 2 + 3;
+	int bh = th + 3;
+	int tt = max(3, (ch - bh) / 2);
+	if (tt + bh > ch - 3)
+		tt = ch - 3 - bh;
+
+	int btnsT = tt + th;
+	int tl = max(2, (cw - tw) / 2);
+
+	BookMgr::get().load();
+	const auto &fullList = BookMgr::get().getList();
+
+	// CHỈ lấy các sách được tìm thấy
+	vector<Book> resultBooks;
+	for (int idx : matchIndices)
+	{
+		if (idx >= 0 && idx < (int)fullList.size())
+			resultBooks.push_back(fullList[idx]);
+	}
+
+	int totalRows = (int)resultBooks.size();
+	int totalPages = max(1, (totalRows + rpp - 1) / rpp);
+
+	// Hàm vẽ một dòng kết quả
+	auto drawRow = [&](int resultIdx, int rowY, bool sel)
+	{
+		if (resultIdx < 0 || resultIdx >= totalRows)
+			return;
+
+		const Book &bk = resultBooks[resultIdx];
+		WORD rowColor = sel ? CLR_BTN_TXT_SEL : CLR_TXT;
+		setColor(rowColor);
+
+		int cx = tl + 1;
+		gotoxy(cx, rowY);
+		cout << left << setw(wSTT) << (resultIdx + 1);
+		cx += wSTT + 1;
+
+		gotoxy(cx, rowY);
+		cout << left << setw(wMaTL) << bk.getMaTL().substr(0, wMaTL);
+		cx += wMaTL + 1;
+
+		gotoxy(cx, rowY);
+		cout << left << setw(wMaSach) << bk.getISBN().substr(0, wMaSach);
+		cx += wMaSach + 1;
+
+		gotoxy(cx, rowY);
+		cout << left << setw(wTen) << bk.getTenSach().substr(0, wTen);
+		cx += wTen + 1;
+
+		gotoxy(cx, rowY);
+		cout << left << setw(wTacGia) << bk.getTacGia().substr(0, wTacGia);
+		cx += wTacGia + 1;
+
+		gotoxy(cx, rowY);
+		Date d = bk.getNgayNhap();
+		stringstream ds;
+		ds << setfill('0') << setw(2) << d.getDay() << "/" << setw(2)
+		   << d.getMonth() << "/" << setw(4) << d.getYear();
+		cout << left << setw(wNgay) << ds.str().substr(0, wNgay);
+		cx += wNgay + 1;
+
+		gotoxy(cx, rowY);
+		cout << right << setw(wGia) << bk.getGiaSach();
+	};
+
+	int page = 0;
+	int selRow = (totalRows > 0) ? 0 : -1;
+	int selBtn = 1;
+	bool inScr = true;
+	bool redrawT = true;
+	bool redrawB = true;
+
+	while (inScr)
+	{
+		if (redrawT)
+		{
+			setColor(CLR_TXT);
+			gotoxy(2, 2);
+			for (int i = 0; i < cw - 4; ++i)
+				cout << ' ';
+
+			string pgInfo = "Trang " + to_string(page + 1) + "/" +
+							to_string(totalPages) +
+							" | Tim thay: " + to_string(totalRows);
+			int pgX = max(2, cw - (int)pgInfo.size() - 3);
+			setColor(CLR_ACCENT);
+			gotoxy(pgX, 2);
+			cout << pgInfo;
+			setColor(CLR_TXT);
+
+			drawTbl(tl, tt, rpp);
+			int startRow = page * rpp;
+			int rowY = tt + 3;
+			for (int r = 0; r < rpp; ++r)
+			{
+				int idx = startRow + r;
+				if (idx >= totalRows)
+					break;
+
+				bool sel = (idx == selRow);
+				drawRow(idx, rowY, sel);
+				rowY += 2;
+			}
+			setColor(CLR_TXT);
+			redrawT = false;
+		}
+
+		if (redrawB)
+		{
+			drawPgBtns(btnsT, selBtn);
+			redrawB = false;
+		}
+
+		int c = _getch();
+		if (c == 27)
+		{
+			inScr = false;
+		}
+		else if (c == 13)
+		{
+			if (selBtn == 0 && page > 0)
+			{
+				page--;
+				if (totalRows > 0)
+				{
+					selRow = page * rpp;
+					if (selRow >= totalRows)
+						selRow = totalRows - 1;
+				}
+				redrawT = true;
+			}
+			else if (selBtn == 1 && page < totalPages - 1)
+			{
+				page++;
+				if (totalRows > 0)
+				{
+					selRow = page * rpp;
+					if (selRow >= totalRows)
+						selRow = totalRows - 1;
+				}
+				redrawT = true;
+			}
+			else if (selBtn == 2)
+			{
+				inScr = false;
+			}
+		}
+		else if (c == 224 || c == 0)
+		{
+			int c2 = _getch();
+			if (c2 == 75) // Left
+			{
+				selBtn = (selBtn - 1 + 3) % 3;
+				redrawB = true;
+			}
+			else if (c2 == 77) // Right
+			{
+				selBtn = (selBtn + 1) % 3;
+				redrawB = true;
+			}
+			else if (c2 == 72) // Up
+			{
+				if (selRow > 0)
+				{
+					int oldRow = selRow;
+					selRow--;
+
+					if (selRow < page * rpp)
+					{
+						if (page > 0)
+							page--;
+						redrawT = true;
+					}
+					else
+					{
+						int startRow = page * rpp;
+						int oldOffset = oldRow - startRow;
+						int newOffset = selRow - startRow;
+						int oldY = tt + 3 + oldOffset * 2;
+						int newY = tt + 3 + newOffset * 2;
+
+						drawRow(oldRow, oldY, false);
+						drawRow(selRow, newY, true);
+						setColor(CLR_TXT);
+					}
+				}
+			}
+			else if (c2 == 80) // Down
+			{
+				if (selRow >= 0 && selRow < totalRows - 1)
+				{
+					int oldRow = selRow;
+					selRow++;
+
+					if (selRow >= (page + 1) * rpp)
+					{
+						if (page < totalPages - 1)
+							page++;
+						redrawT = true;
+					}
+					else
+					{
+						int startRow = page * rpp;
+						int oldOffset = oldRow - startRow;
+						int newOffset = selRow - startRow;
+						int oldY = tt + 3 + oldOffset * 2;
+						int newY = tt + 3 + newOffset * 2;
+
+						drawRow(oldRow, oldY, false);
+						drawRow(selRow, newY, true);
+						setColor(CLR_TXT);
+					}
+				}
+			}
+		}
+	}
 }
 
 void CLI::showStats()

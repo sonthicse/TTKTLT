@@ -16,6 +16,7 @@ const WORD CLR_BOX_BORDER = CLR_BTN_BORDER;
 const WORD CLR_BOX_BORDER_SEL = CLR_BTN_BORDER_SEL;
 const WORD CLR_GUIDE_FRAME = CLR_FRAME;
 const WORD CLR_GUIDE_LBL = 0x0A;
+const WORD CLR_HIGHLIGHT = 0x0E;
 
 const std::string TL = "\xE2\x94\x8C";
 const std::string TR = "\xE2\x94\x90";

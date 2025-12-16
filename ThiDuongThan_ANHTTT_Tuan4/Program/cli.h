@@ -1,10 +1,10 @@
 #ifndef CLI_H
 #define CLI_H
 
-#include "constants.h"
 #include "utils.h"
-#include "book_mgr.h"
 #include "book.h"
+#include "book_mgr.h"
+#include "constants.h"
 #include <algorithm>
 #include <cctype>
 #include <conio.h>
@@ -12,6 +12,7 @@
 #include <iostream>
 #include <sstream>
 #include <string>
+#include <unordered_set>
 #include <vector>
 
 using namespace std;
@@ -64,7 +65,8 @@ private:
 	void showSearch();
 	void showStats();
 
-	void drawLblBox(int left, int top, int bw, const string &lbl, const string &val, bool sel);
+	void drawLblBox(int left, int top, int bw, const string &lbl,
+					const string &val, bool sel);
 
 	int showVMenu(const vector<string> &items, int left, int top, int width);
 
@@ -72,6 +74,11 @@ private:
 
 	void drawTbl(int left, int top, int rpp);
 	void drawPgBtns(int top, int selidx);
+
+	void showSearchResults(const vector<int> &matchIndices,
+						   const string &searchTerm,
+						   BookMgr::SortCriteria searchCriteria,
+						   int searchTypeIdx);
 };
 
 #endif

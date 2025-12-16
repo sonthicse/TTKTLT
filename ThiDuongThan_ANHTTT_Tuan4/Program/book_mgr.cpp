@@ -1,4 +1,6 @@
 #include "book_mgr.h"
+#include <iomanip>
+#include <sstream>
 
 using namespace std;
 
@@ -145,7 +147,8 @@ void BookMgr::insertionSort(
 	{
 		Book key = arr[i];
 		int j = i - 1;
-		// Di chuyển các phần tử lớn hơn key đến vị trí trước vị trí hiện tại của chúng.
+		// Di chuyển các phần tử lớn hơn key đến vị trí trước vị trí hiện tại của
+		// chúng.
 		while (j >= 0 && cmp(key, arr[j]))
 		{
 			arr[j + 1] = arr[j];
@@ -347,4 +350,160 @@ void BookMgr::sortList(SortAlgorithm algo, SortCriteria criteria)
 			}
 		}
 	}
+}
+
+static string getFieldByKey(const Book &b, BookMgr::SortCriteria key)
+{
+	switch (key)
+	{
+	case BookMgr::SortCriteria::Category:
+		return b.getMaTL();
+	case BookMgr::SortCriteria::ISBN:
+		return b.getISBN();
+	case BookMgr::SortCriteria::Title:
+		return b.getTenSach();
+	case BookMgr::SortCriteria::Author:
+		return b.getTacGia();
+	default:
+		return "";
+	}
+}
+
+static string formatDate(const Date &d)
+{
+	stringstream ss;
+	ss << setfill('0') << setw(2) << d.getDay() << "/" << setw(2) << d.getMonth() << "/" << setw(4) << d.getYear();
+	return ss.str();
+}
+
+static bool containsInAllFields(const Book &b, const string &needle)
+{
+	if (containsFolded(b.getMaTL(), needle))
+		return true;
+	if (containsFolded(b.getISBN(), needle))
+		return true;
+	if (containsFolded(b.getTenSach(), needle))
+		return true;
+	if (containsFolded(b.getTacGia(), needle))
+		return true;
+
+	string dateStr = formatDate(b.getNgayNhap());
+	if (containsFolded(dateStr, needle))
+		return true;
+
+	string priceStr = to_string(b.getGiaSach());
+	if (containsFolded(priceStr, needle))
+		return true;
+
+	return false;
+}
+
+vector<int> BookMgr::searchExactLinear(SortCriteria key, const string &q)
+{
+	load();
+	vector<int> results;
+	string qFolded = foldLowerUtf8(q);
+
+	for (int i = 0; i < (int)books.size(); ++i)
+	{
+		string field = getFieldByKey(books[i], key);
+		string fieldFolded = foldLowerUtf8(field);
+		if (fieldFolded == qFolded)
+			results.push_back(i);
+	}
+	return results;
+}
+
+vector<int> BookMgr::searchExactBinary(SortCriteria key, const string &q)
+{
+	load();
+	vector<int> results;
+	if (books.empty())
+		return results;
+
+	string qFolded = foldLowerUtf8(q);
+
+	vector<pair<string, int>> aux;
+	aux.reserve(books.size());
+	for (int i = 0; i < (int)books.size(); ++i)
+	{
+		string field = getFieldByKey(books[i], key);
+		string fieldFolded = foldLowerUtf8(field);
+		aux.push_back({fieldFolded, i});
+	}
+	auto cmpPair = [](const pair<string, int> &a, const pair<string, int> &b)
+	{
+		if (a.first == b.first)
+			return a.second < b.second;
+		return a.first < b.first;
+	};
+	sort(aux.begin(), aux.end(), cmpPair);
+
+	int left = 0, right = (int)aux.size() - 1;
+	int foundPos = -1;
+
+	while (left <= right)
+	{
+		int mid = left + (right - left) / 2;
+		if (aux[mid].first == qFolded)
+		{
+			foundPos = mid;
+			right = mid - 1;
+		}
+		else if (aux[mid].first < qFolded)
+		{
+			left = mid + 1;
+		}
+		else
+		{
+			right = mid - 1;
+		}
+	}
+	if (foundPos != -1)
+	{
+		int start = foundPos;
+		while (start > 0 && aux[start - 1].first == qFolded)
+			start--;
+
+		int end = foundPos;
+		while (end < (int)aux.size() - 1 && aux[end + 1].first == qFolded)
+			end++;
+
+		for (int i = start; i <= end; ++i)
+		{
+			results.push_back(aux[i].second);
+		}
+
+		sort(results.begin(), results.end());
+	}
+	return results;
+}
+
+vector<int> BookMgr::searchContainsLinear(SortCriteria key, const string &q)
+{
+	load();
+	vector<int> results;
+
+	for (int i = 0; i < (int)books.size(); ++i)
+	{
+		string field = getFieldByKey(books[i], key);
+		if (containsFolded(field, q))
+			results.push_back(i);
+	}
+
+	return results;
+}
+
+vector<int> BookMgr::searchGlobalLinear(const string &q)
+{
+	load();
+	vector<int> results;
+
+	for (int i = 0; i < (int)books.size(); ++i)
+	{
+		if (containsInAllFields(books[i], q))
+			results.push_back(i);
+	}
+
+	return results;
 }
