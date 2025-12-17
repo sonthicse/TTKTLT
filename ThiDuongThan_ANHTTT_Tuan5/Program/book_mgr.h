@@ -3,19 +3,18 @@
 
 #include "utils.h"
 #include "book.h"
-#include <filesystem>
 #include <fstream>
 #include <functional>
+#include <iomanip>
+#include <sstream>
 #include <string>
 #include <vector>
-
-using namespace std;
 
 class BookMgr
 {
 private:
-	vector<Book> books;
-	string filePath;
+	std::vector<Book> books;
+	std::string filePath;
 	BookMgr();
 	BookMgr(const BookMgr &) = delete;
 	BookMgr &operator=(const BookMgr &) = delete;
@@ -29,26 +28,20 @@ private:
 	static bool cmpByMulti(const Book &a, const Book &b);
 
 	// Triển khai các thuật toán sắp xếp.
-	static void
-	insertionSort(std::vector<Book> &arr, const std::function<bool(const Book &, const Book &)> &cmp);
-	static void
-	quickSort(std::vector<Book> &arr, int low, int high, const std::function<bool(const Book &, const Book &)> &cmp);
-	static int
-	partition(std::vector<Book> &arr, int low, int high, const std::function<bool(const Book &, const Book &)> &cmp);
-	static void
-	mergeSort(std::vector<Book> &arr, int left, int right, const std::function<bool(const Book &, const Book &)> &cmp);
+	static void insertionSort(std::vector<Book> &arr, const std::function<bool(const Book &, const Book &)> &cmp);
+	static void quickSort(std::vector<Book> &arr, int low, int high, const std::function<bool(const Book &, const Book &)> &cmp);
+	static int partition(std::vector<Book> &arr, int low, int high, const std::function<bool(const Book &, const Book &)> &cmp);
+	static void mergeSort(std::vector<Book> &arr, int left, int right, const std::function<bool(const Book &, const Book &)> &cmp);
 	static void merge(std::vector<Book> &arr, int left, int mid, int right, const std::function<bool(const Book &, const Book &)> &cmp);
-	static void
-	heapSort(std::vector<Book> &arr, const std::function<bool(const Book &, const Book &)> &cmp);
-	static void
-	heapify(std::vector<Book> &arr, int n, int i, const std::function<bool(const Book &, const Book &)> &cmp);
+	static void heapSort(std::vector<Book> &arr, const std::function<bool(const Book &, const Book &)> &cmp);
+	static void heapify(std::vector<Book> &arr, int n, int i, const std::function<bool(const Book &, const Book &)> &cmp);
 
 public:
 	static BookMgr &get();
 	size_t load();
 	bool save(const Book &b);
 	bool add(const Book &b);
-	const vector<Book> &getList() const;
+	const std::vector<Book> &getList() const;
 
 	// Liệt kê các thuật toán sắp xếp được hỗ trợ
 	enum class SortAlgorithm
@@ -74,10 +67,10 @@ public:
 	// Sắp xếp danh sách sách nội bộ bằng cách sử dụng thuật toán và tiêu chí so sánh được chỉ định.
 	void sortList(SortAlgorithm algo, SortCriteria criteria);
 
-	vector<int> searchExactLinear(SortCriteria key, const string &q);
-	vector<int> searchExactBinary(SortCriteria key, const string &q);
-	vector<int> searchContainsLinear(SortCriteria key, const string &q);
-	vector<int> searchGlobalLinear(const string &q);
+	std::vector<int> searchExactLinear(SortCriteria key, const std::string &q);
+	std::vector<int> searchExactBinary(SortCriteria key, const std::string &q);
+	std::vector<int> searchContainsLinear(SortCriteria key, const std::string &q);
+	std::vector<int> searchGlobalLinear(const std::string &q);
 };
 
 #endif

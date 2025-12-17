@@ -2,7 +2,7 @@
 
 using namespace std;
 
-void gotoxy(int x, int y)
+void gotoXY(int x, int y)
 {
 	HANDLE hConsoleOutput = GetStdHandle(STD_OUTPUT_HANDLE);
 	COORD dwCursorPosition = {(SHORT)x, (SHORT)y};
@@ -24,7 +24,7 @@ void showCursor(bool visible)
 	SetConsoleCursorInfo(hConsoleOutput, &lpConsoleCursorInfo);
 }
 
-pair<int, int> screenSize()
+pair<int, int> getScreenSize()
 {
 	pair<int, int> size;
 	HANDLE console = GetStdHandle(STD_OUTPUT_HANDLE);
@@ -40,7 +40,7 @@ void clearArea(int left, int top, int width, int height)
 	string spaces(width, ' ');
 	for (int y = top; y < top + height; ++y)
 	{
-		gotoxy(left, y);
+		gotoXY(left, y);
 		cout << spaces;
 	}
 }
@@ -50,7 +50,7 @@ static bool isLeap(int y)
 	return (y % 4 == 0 && y % 100 != 0) || (y % 400 == 0);
 }
 
-bool validDate(int d, int m, int y)
+bool isValidDate(int d, int m, int y)
 {
 	if (m < 1 || m > 12 || d < 1 || y < 0)
 		return false;
@@ -76,7 +76,7 @@ bool validDate(int d, int m, int y)
 	return true;
 }
 
-bool validPrice(int price) { return price >= 0; }
+bool isValidPrice(int price) { return price >= 0; }
 
 static wstring toWString(const string &u8)
 {
@@ -108,7 +108,7 @@ static string toUTF8(const wstring &ws)
 	return u8;
 }
 
-void normStr(string &s)
+string normalizeDisplayName(const string &s)
 {
 	wstring ws = toWString(s);
 	for (auto &wc : ws)
@@ -126,10 +126,10 @@ void normStr(string &s)
 			capNext = false;
 		}
 	}
-	s = toUTF8(ws);
+	return toUTF8(ws);
 }
 
-string foldLowerUtf8(const string &s)
+string caseFoldUtf8(const string &s)
 {
 	wstring ws = toWString(s);
 	for (auto &wc : ws)
@@ -137,9 +137,35 @@ string foldLowerUtf8(const string &s)
 	return toUTF8(ws);
 }
 
-bool containsFolded(const string &haystack, const string &needle)
+string normalizeKey(const string &s) { return caseFoldUtf8(s); }
+
+bool containsIgnoreCase(const string &haystack, const string &needle)
 {
-	string h = foldLowerUtf8(haystack);
-	string n = foldLowerUtf8(needle);
+	string h = caseFoldUtf8(haystack);
+	string n = caseFoldUtf8(needle);
 	return h.find(n) != string::npos;
+}
+
+string formatDateDDMMYYYY(const Date &d)
+{
+	stringstream ss;
+	ss << setfill('0') << setw(2) << d.getDay() << "/" << setw(2) << d.getMonth() << "/" << setw(4) << d.getYear();
+	return ss.str();
+}
+
+bool parseDateDDMMYYYY(const string &s, Date &out)
+{
+	int d = 0, m = 0, y = 0;
+	char sep1 = 0, sep2 = 0;
+	stringstream ss(s);
+	if (!(ss >> d >> sep1 >> m >> sep2 >> y))
+		return false;
+	if (sep1 != '/' || sep2 != '/')
+		return false;
+	if (!isValidDate(d, m, y))
+		return false;
+	out.setDay(d);
+	out.setMonth(m);
+	out.setYear(y);
+	return true;
 }

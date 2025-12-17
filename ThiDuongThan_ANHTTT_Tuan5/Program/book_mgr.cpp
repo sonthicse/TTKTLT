@@ -1,6 +1,4 @@
 #include "book_mgr.h"
-#include <iomanip>
-#include <sstream>
 
 using namespace std;
 
@@ -15,8 +13,10 @@ BookMgr &BookMgr::get()
 size_t BookMgr::load()
 {
 	books.clear();
-	if (!filesystem::exists(filePath))
+	ifstream check(filePath);
+	if (!check)
 		return 0;
+	check.close();
 	ifstream in(filePath, ios::binary);
 	if (!in)
 		return 0;
@@ -53,8 +53,8 @@ bool BookMgr::cmpByISBN(const Book &a, const Book &b)
 {
 	string sa = a.getISBN();
 	string sb = b.getISBN();
-	normStr(sa);
-	normStr(sb);
+	sa = normalizeKey(sa);
+	sb = normalizeKey(sb);
 	return sa < sb;
 }
 
@@ -63,8 +63,8 @@ bool BookMgr::cmpByTitle(const Book &a, const Book &b)
 {
 	string sa = a.getTenSach();
 	string sb = b.getTenSach();
-	normStr(sa);
-	normStr(sb);
+	sa = normalizeKey(sa);
+	sb = normalizeKey(sb);
 	return sa < sb;
 }
 
@@ -73,8 +73,8 @@ bool BookMgr::cmpByAuthor(const Book &a, const Book &b)
 {
 	string sa = a.getTacGia();
 	string sb = b.getTacGia();
-	normStr(sa);
-	normStr(sb);
+	sa = normalizeKey(sa);
+	sb = normalizeKey(sb);
 	return sa < sb;
 }
 
@@ -101,8 +101,8 @@ bool BookMgr::cmpByCategory(const Book &a, const Book &b)
 {
 	string sa = a.getMaTL();
 	string sb = b.getMaTL();
-	normStr(sa);
-	normStr(sb);
+	sa = normalizeKey(sa);
+	sb = normalizeKey(sb);
 	return sa < sb;
 }
 
@@ -112,8 +112,8 @@ bool BookMgr::cmpByMulti(const Book &a, const Book &b)
 	// So sánh theo thể loại trước
 	string ca = a.getMaTL();
 	string cb = b.getMaTL();
-	normStr(ca);
-	normStr(cb);
+	ca = normalizeKey(ca);
+	cb = normalizeKey(cb);
 	if (ca != cb)
 	{
 		return ca < cb;
@@ -121,8 +121,8 @@ bool BookMgr::cmpByMulti(const Book &a, const Book &b)
 	// Nếu thể loại giống nhau, so sánh theo tiêu đề
 	string ta = a.getTenSach();
 	string tb = b.getTenSach();
-	normStr(ta);
-	normStr(tb);
+	ta = normalizeKey(ta);
+	tb = normalizeKey(tb);
 	if (ta != tb)
 	{
 		return ta < tb;
@@ -147,8 +147,7 @@ void BookMgr::insertionSort(
 	{
 		Book key = arr[i];
 		int j = i - 1;
-		// Di chuyển các phần tử lớn hơn key đến vị trí trước vị trí hiện tại của
-		// chúng.
+		// Di chuyển các phần tử lớn hơn key đến vị trí trước vị trí hiện tại của chúng.
 		while (j >= 0 && cmp(key, arr[j]))
 		{
 			arr[j + 1] = arr[j];
@@ -369,30 +368,23 @@ static string getFieldByKey(const Book &b, BookMgr::SortCriteria key)
 	}
 }
 
-static string formatDate(const Date &d)
-{
-	stringstream ss;
-	ss << setfill('0') << setw(2) << d.getDay() << "/" << setw(2) << d.getMonth() << "/" << setw(4) << d.getYear();
-	return ss.str();
-}
-
 static bool containsInAllFields(const Book &b, const string &needle)
 {
-	if (containsFolded(b.getMaTL(), needle))
+	if (containsIgnoreCase(b.getMaTL(), needle))
 		return true;
-	if (containsFolded(b.getISBN(), needle))
+	if (containsIgnoreCase(b.getISBN(), needle))
 		return true;
-	if (containsFolded(b.getTenSach(), needle))
+	if (containsIgnoreCase(b.getTenSach(), needle))
 		return true;
-	if (containsFolded(b.getTacGia(), needle))
+	if (containsIgnoreCase(b.getTacGia(), needle))
 		return true;
 
-	string dateStr = formatDate(b.getNgayNhap());
-	if (containsFolded(dateStr, needle))
+	string dateStr = formatDateDDMMYYYY(b.getNgayNhap());
+	if (containsIgnoreCase(dateStr, needle))
 		return true;
 
 	string priceStr = to_string(b.getGiaSach());
-	if (containsFolded(priceStr, needle))
+	if (containsIgnoreCase(priceStr, needle))
 		return true;
 
 	return false;
@@ -402,12 +394,12 @@ vector<int> BookMgr::searchExactLinear(SortCriteria key, const string &q)
 {
 	load();
 	vector<int> results;
-	string qFolded = foldLowerUtf8(q);
+	string qFolded = normalizeKey(q);
 
 	for (int i = 0; i < (int)books.size(); ++i)
 	{
 		string field = getFieldByKey(books[i], key);
-		string fieldFolded = foldLowerUtf8(field);
+		string fieldFolded = normalizeKey(field);
 		if (fieldFolded == qFolded)
 			results.push_back(i);
 	}
@@ -421,14 +413,14 @@ vector<int> BookMgr::searchExactBinary(SortCriteria key, const string &q)
 	if (books.empty())
 		return results;
 
-	string qFolded = foldLowerUtf8(q);
+	string qFolded = normalizeKey(q);
 
 	vector<pair<string, int>> aux;
 	aux.reserve(books.size());
 	for (int i = 0; i < (int)books.size(); ++i)
 	{
 		string field = getFieldByKey(books[i], key);
-		string fieldFolded = foldLowerUtf8(field);
+		string fieldFolded = normalizeKey(field);
 		aux.push_back({fieldFolded, i});
 	}
 	auto cmpPair = [](const pair<string, int> &a, const pair<string, int> &b)
@@ -487,7 +479,7 @@ vector<int> BookMgr::searchContainsLinear(SortCriteria key, const string &q)
 	for (int i = 0; i < (int)books.size(); ++i)
 	{
 		string field = getFieldByKey(books[i], key);
-		if (containsFolded(field, q))
+		if (containsIgnoreCase(field, q))
 			results.push_back(i);
 	}
 

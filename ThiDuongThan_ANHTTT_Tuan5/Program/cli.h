@@ -7,15 +7,15 @@
 #include "constants.h"
 #include <algorithm>
 #include <cctype>
+#include <cmath>
 #include <conio.h>
 #include <iomanip>
 #include <iostream>
+#include <map>
 #include <sstream>
 #include <string>
 #include <unordered_set>
 #include <vector>
-
-using namespace std;
 
 class CLI
 {
@@ -27,7 +27,7 @@ private:
 	int cw;
 	int ch;
 
-	vector<string> mItems;
+	std::vector<std::string> mItems;
 	int curIdx;
 
 	int mAreaW;
@@ -37,23 +37,23 @@ private:
 	int mBtnH;
 	int mGap;
 
-	const string tl;
-	const string tr;
-	const string bl;
-	const string br;
-	const string h;
-	const string v;
+	const std::string tl;
+	const std::string tr;
+	const std::string bl;
+	const std::string br;
+	const std::string h;
+	const std::string v;
 
 	void recalc();
 
 	void drawFrame();
-	void drawTitle(const string &text);
-	void drawGuide(const string &msg);
+	void drawTitle(const std::string &text);
+	void drawGuide(const std::string &msg);
 	void clrInner();
 	void clrContent();
 
 	void drawBox(int left, int top, int width, int height, bool dbl, WORD bc);
-	void drawBtn(int left, int top, int width, const string &text, bool sel);
+	void drawBtn(int left, int top, int width, const std::string &text, bool sel);
 
 	void drawMMenu();
 	void drawMBtn(int idx, bool sel);
@@ -65,20 +65,18 @@ private:
 	void showSearch();
 	void showStats();
 
-	void drawLblBox(int left, int top, int bw, const string &lbl,
-					const string &val, bool sel);
+	void drawLblBox(int left, int top, int bw, const std::string &lbl, const std::string &val, bool sel);
 
-	int showVMenu(const vector<string> &items, int left, int top, int width);
+	int showVMenu(const std::vector<std::string> &items, int left, int top, int width);
 
-	string inputLine(int left, int top, int bw, const string &lbl);
+	std::string inputLine(int left, int top, int bw, const std::string &lbl);
 
 	void drawTbl(int left, int top, int rpp);
 	void drawPgBtns(int top, int selidx);
 
-	void showSearchResults(const vector<int> &matchIndices,
-						   const string &searchTerm,
-						   BookMgr::SortCriteria searchCriteria,
-						   int searchTypeIdx);
+	void showSearchResults(const std::vector<int> &matchIndices, const std::string &searchTerm, BookMgr::SortCriteria searchCriteria, int searchTypeIdx);
+
+	void showBookTableScreen(const std::string &title, const std::vector<int> &indices, const std::string &subtitleRight);
 };
 
 #endif
