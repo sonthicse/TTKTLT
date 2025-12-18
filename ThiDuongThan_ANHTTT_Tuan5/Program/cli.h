@@ -74,8 +74,6 @@ private:
 	void drawTbl(int left, int top, int rpp);
 	void drawPgBtns(int top, int selidx);
 
-	void showSearchResults(const std::vector<int> &matchIndices, const std::string &searchTerm, BookMgr::SortCriteria searchCriteria, int searchTypeIdx);
-
 	void showBookTableScreen(const std::string &title, const std::vector<int> &indices, const std::string &subtitleRight);
 };
 
